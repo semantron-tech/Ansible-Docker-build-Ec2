@@ -1,0 +1,39 @@
+---
+- name: "docker project"
+  become: true
+  hosts: all
+  tasks:
+
+
+    - name: Install docker and PIP
+      yum:
+        name:
+          - python-pip
+    - command: amazon-linux-extras install docker -y
+
+    - name: Starting Docker Service
+      service:
+        name: docker
+        state: restarted
+        enabled: true
+
+
+    - name: Install Docker Python Library
+      pip:
+        name:
+          - docker-py
+
+    - name: Build docker image from docker file
+      docker_image:
+        name: web
+        path: /root/docker/
+        state: build
+
+    - name: Running the container
+      docker_container:
+        name: web:latest
+        path: docker
+        state: running
+
+    - name: check if the container is running
+      shell: docker ps
